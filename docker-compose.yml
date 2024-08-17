@@ -1,0 +1,91 @@
+version: '3.7'
+
+services:
+  ##### Elastic search #####
+  elasticsearch:
+    container_name: elasticsearch
+    build:
+      context: elasticsearch/
+      args:
+        ELASTIC_VERSION: ${ELASTICSEARCH_VERSION}
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - ./elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      discovery.type: single-node
+    ports:
+      - ${ELASTICSEARCH_PORT_1}:9200
+      - ${ELASTICSEARCH_PORT_2}:9300
+    networks:
+      - search-engine
+    restart: unless-stopped
+
+  ##### Logstash #####
+  logstash:
+    container_name: logstash
+    build:
+      context: logstash/
+      args:
+        ELASTIC_VERSION: ${ELASTICSEARCH_VERSION}
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      # - ./logstash/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - ${LOGSTASH_PORT_1}:5044
+      - ${LOGSTASH_PORT_2}:9600
+      - 50000:50000/tcp
+      - 50000:50000/udp
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD}
+    networks:
+      - search-engine
+    depends_on:
+      - elasticsearch
+    # restart: unless-stopped
+
+  ##### Kibana #####
+  kibana:
+    container_name: kibana
+    build:
+      context: kibana/
+      args:
+        ELASTIC_VERSION: ${ELASTICSEARCH_VERSION}
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:${ELASTICSEARCH_PORT_1}
+      - KIBANA_SYSTEM_PASSWORD=${KIBANA_SYSTEM_PASSWORD}
+      - KIBANA_ENCRYPTION_KEY=${KIBANA_ENCRYPTION_KEY}
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - ${KIBANA_PORT}:5601
+    depends_on:
+      - elasticsearch
+    networks:
+      - search-engine
+    restart: unless-stopped
+  python-api:
+    container_name: python_api
+    build: 
+      context: ./python-api
+    command:
+      uvicorn main:app --reload --host 0.0.0.0 --port $PYTHON_API_PORT
+    volumes:
+      - ./python-api:/usr/src/app
+    ports:
+      - ${PYTHON_API_PORT}:${PYTHON_API_PORT}
+    networks:
+      - search-engine
+
+networks:
+  search-engine:
+    driver: bridge
+
+volumes:
+  elasticsearch:
+    driver: local
+
