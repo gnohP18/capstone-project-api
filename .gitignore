@@ -3,3 +3,5 @@
 
 .DS_Store
 /python-api/__pycache__
+/python-api/storage/model
+/python-api/storage/tokenizer

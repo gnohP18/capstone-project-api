@@ -1,1 +1,2 @@
-from .elasticsearchService import indexObjects, searching
+from .elasticsearchService import indexObjects, simpleSearch, semanticSearch, createArrayTitleTestObject
+from .sentenceService import ModelSentence
