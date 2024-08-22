@@ -2,10 +2,8 @@ from common import constant
 from transformers import AutoTokenizer, AutoModel
 import torch
 import numpy as np
-
 # from sklearn.decomposition import PCA
 # from sklearn.metrics.pairwise import cosine_similarity
-
 
 class SingletonMeta(type):
     _instances = {}

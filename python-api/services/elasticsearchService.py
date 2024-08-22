@@ -6,11 +6,13 @@ from dtos import SearchConditionDto
 from .sentenceService import ModelSentence
 import pandas as pd
 import os
+import time
+import datetime
+
 model = ModelSentence()
 
 elasticsearchUrl = os.getenv("ELASTICSEARCH_HOSTS", "http://elasticsearch:9200/")
-BATCH_SIZE = os.getenv("BATCH_SIZE", constant.BATCH_SIZE_256)
-
+BATCH_SIZE=os.getenv('BATCH_SIZE', constant.BATCH_SIZE_256)
 
 def extractPageText(page) -> str:
     text = page.extract_text()
@@ -117,7 +119,7 @@ def createObjectTitle(docs):
     for i, doc in enumerate(docs):
         objectTitle = doc
         objectTitle["_op_type"] = "index"
-        objectTitle["_index"] = "test"
+        objectTitle["_index"] = constant.INDEX_TITLE_TEST
         objectTitle["title_vector"] = titleVectors[i].tolist()
         objects.append(objectTitle)
 
@@ -126,30 +128,37 @@ def createObjectTitle(docs):
 
 def createArrayTitleTestObject():
     df = pd.read_csv("./storage/data_title.csv")
+    # Định nghĩa kiểu dữ liệu cho data
     mapping = {
         "mappings": {
             "properties": {
-                "title": {"type": "text"},
-                "title_vector": {"type": "dense_vector", "dims": constant.DIMS_768},
+                "title": {
+                    "type": "text"
+                },
+                "title_vector": {
+                    "type": "dense_vector",
+                    "dims": constant.DIMS_768
+                }
             }
         }
     }
     es_client = Elasticsearch(elasticsearchUrl)
-    es_client.indices.create(index='test', body=mapping)
+    es_client.indices.create(index=constant.INDEX_TITLE_TEST, body=mapping)
     total = df.shape[0]
     indexedCount = 0
     count = 0
     docs = []
+    start = time.time()
     for index, row in df.iterrows():
         count += 1
         item = {"id": row["id"], "title": row["title"]}
         docs.append(item)
-        if count % constant.BATCH_SIZE_128 == 0:
+        if count % BATCH_SIZE == 0:
             arrObject = createObjectTitle(docs)
             indexObjects(index=constant.INDEX_TITLE_TEST, arrObject=arrObject)
-
+            
             indexedCount += BATCH_SIZE
-
+            
             print(f"===========> Indexed {indexedCount}/{total}")
             docs = []
         if count > constant.TEST_LIMIT_DATA:
@@ -159,14 +168,13 @@ def createArrayTitleTestObject():
         arrObject = createObjectTitle(docs)
         indexObjects(index=constant.INDEX_TITLE_TEST, arrObject=arrObject)
         indexedCount += BATCH_SIZE
-
+        
         print(f"===========> Indexed {indexedCount}/{total}")
-
+        
     end = datetime.timedelta(time.time() - start)
-
+    
     print(f"===========> Done indexed {count}/{total} in {end}")
-
-
+    
 def semanticSearch(dto: SearchConditionDto):
     test = model.encodeSentence(dto.query[0])
     esClient = Elasticsearch(elasticsearchUrl)

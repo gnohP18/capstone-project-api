@@ -12,7 +12,9 @@ ORDER_BY = {"ASC": "asc", "DESC": "desc"}
 ########## Batch size ##########
 BATCH_SIZE_768 = 768
 
-BATCH_SIZE_256 = 256
+BATCH_SIZE_256=256
+
+BATCH_SIZE_128=128
 
 BATCH_SIZE_128 = 128
 
@@ -21,7 +23,7 @@ BATCH_SIZE_64 = 64
 BATCH_SIZE_32 = 32
 
 ########## For test ##########
-TEST_LIMIT_DATA = 100000
+TEST_LIMIT_DATA=100000
 
 INDEX_TITLE_TEST = "title-data-test"
 

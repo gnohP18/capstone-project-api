@@ -5,7 +5,6 @@ from services import ModelSentence
 from http import HTTPStatus
 from common import returnMessage, functionHelper
 
-
 ##### API Constructor #####
 app = FastAPI()
 
@@ -22,7 +21,7 @@ app.add_middleware(
 )
 
 model = ModelSentence()
-# model.loadModel()
+model.loadModel()
 
 
 @app.get("/")
