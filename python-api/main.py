@@ -1,14 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import elasticsearch
-from services import ModelSentence 
+from routers import elasticsearch, document
+from services import ModelSentence
 from http import HTTPStatus
 from common import returnMessage, functionHelper
 
-import os
-
-##### Load env #####
-functionHelper.loadEnvironment()
 
 ##### API Constructor #####
 app = FastAPI()
@@ -24,15 +20,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-print(os.environ)
+
 model = ModelSentence()
 # model.loadModel()
 
+
 @app.get("/")
 async def root():
-    return {
-        "message": "Xin chào, chào mừng bạn tới project của shubanoname"
-    }
+    return {"message": "Xin chào, chào mừng bạn tới project của shubanoname"}
+
 
 @app.get("/setup")
 async def setup():
@@ -42,17 +38,17 @@ async def setup():
     print("====================> Done ...")
     return {
         "status_code": HTTPStatus.CREATED,
-        "message": returnMessage.SETUP_MODEL_SUCCESS
+        "message": returnMessage.SETUP_MODEL_SUCCESS,
     }
+
 
 @app.get("/reload")
 async def reload():
     print("====================> Reloading ...")
     model.reloadModel()
     print("====================> Done ...")
-    return {
-        "status_code": HTTPStatus.OK,
-        "message": returnMessage.RELOAD_MODEL_SUCCESS
-    }
+    return {"status_code": HTTPStatus.OK, "message": returnMessage.RELOAD_MODEL_SUCCESS}
 
-app.include_router(elasticsearch.router) 
+
+app.include_router(elasticsearch.router)
+app.include_router(document.router)

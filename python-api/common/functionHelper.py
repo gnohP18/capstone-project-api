@@ -1,19 +1,15 @@
 from typing import List
 from dotenv import load_dotenv
 import os
+from common import constant
 
 
-def loadEnvironment():
-    # Lấy giá trị môi trường (environment) từ biến ENV
-    env = os.getenv("ENV", "local")  # Nếu không có ENV, mặc định là 'local'
-
-    # Chọn tệp .env tương ứng
-    if env == "local":
-        load_dotenv(".env.local")
-    elif env == "dev":
-        load_dotenv(".env.dev")
-    else:
-        raise ValueError(f"Unknown environment: {env}")
+def loadEnvironment(env: str = constant.LOCAL_ENV):
+    envDir = "./.env"
+    if env != constant.LOCAL_ENV:
+        envDir = "./.env." + env
+    load_dotenv(envDir)
+    return os.environ
 
 
 def convertResourceSearch(data, field: List[str] = ["*"]) -> List[object]:
@@ -33,3 +29,28 @@ def convertResourceSearch(data, field: List[str] = ["*"]) -> List[object]:
             dataReturn.append(nestedItem)
 
     return dataReturn
+
+
+def generateUrlStorage(name: str = "", env: str = constant.LOCAL_ENV):
+    if name == "":
+        return
+    envVariable = loadEnvironment()
+
+    # Check if local
+    if env == constant.LOCAL_ENV:
+        # Check if storage path is exist
+        if not os.path.exists(envVariable["LOCAL_DIR"]):
+            print("==========> Path is not exist, create a new path")
+            os.makedirs(envVariable["LOCAL_DIR"])
+
+        return os.path.join(envVariable["LOCAL_DIR"], name)
+
+    # if not local -> handle AWS or another service
+    # TODO
+
+
+def generateUrlPreview(names: List[str] = []) -> List[str]:
+    # query to get list path
+    # check if type is in another service like AWS 
+    
+    return ["storage/documents/Topics_1_2_20240824_050225.pdf"]

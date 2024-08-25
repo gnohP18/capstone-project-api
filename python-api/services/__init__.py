@@ -5,3 +5,4 @@ from .elasticsearchService import (
     createArrayTitleTestObject,
 )
 from .sentenceService import ModelSentence
+from .documentService import DocumentService

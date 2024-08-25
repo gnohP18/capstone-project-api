@@ -34,3 +34,7 @@ MODEL_PATH = "storage/model/"
 
 DIMS_768 = 768
 DIMS_256 = 256
+
+########## Storage ##########
+LOCAL_ENV = "local"
+PROD_ENV= "production"

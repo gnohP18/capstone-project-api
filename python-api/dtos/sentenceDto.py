@@ -13,7 +13,6 @@ class SentenceDto(BaseModel):
         sentence: str,
         sentence_vector: List[float] = [],
     ):
-
         # public data members
         self.id = id
         self.document_id = document_id
