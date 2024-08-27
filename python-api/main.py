@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import elasticsearch, document
 from services import ModelSentence
 from http import HTTPStatus
-from common import returnMessage, functionHelper
+from common import returnMessage, functionHelper, constant
 
 ##### API Constructor #####
 app = FastAPI()
@@ -19,10 +19,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+##### Load config #####
+env = functionHelper.loadEnvironment()
 
+##### Load model #####
 model = ModelSentence()
-model.loadModel()
-
+if env["LOAD_MODEL"] == 'True':
+    model.loadModel()
 
 @app.get("/")
 async def root():

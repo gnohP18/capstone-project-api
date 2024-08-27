@@ -1,4 +1,4 @@
-from common import constant
+from common import constant, functionHelper
 from transformers import AutoTokenizer, AutoModel
 import torch
 import numpy as np
@@ -25,21 +25,29 @@ class ModelSentence(metaclass=SingletonMeta):
         self.model = None
 
     def loadModel(self):
+        """Load model follow constant config
+        """
         if self.model is None:
-            print("============> Loading model")
+            functionHelper.writeLog("Loading model", constant.START_LOG)
+            
             self.model = AutoModel.from_pretrained(constant.PHOBERT_BASE_PATH)
-            print("============> Loaded model")
+            
+            functionHelper.writeLog("Loaded model", constant.END_LOG)
         else:
-            print("============> Model already loaded")
+            functionHelper.writeLog("Loaded model", constant.END_LOG)
+
 
         if self.tokenizer is None:
-            print("============> Loading tokenizer")
+            functionHelper.writeLog("Loading tokenizer", constant.START_LOG)
+            
             self.tokenizer = AutoTokenizer.from_pretrained(
                 constant.PHOBERT_BASE_PATH, use_fast=True
             )
-            print("============> Loaded tokenizer")
+
+            functionHelper.writeLog("Loaded tokenizer", constant.END_LOG)
         else:
-            print("============> Tokenizer already loaded")
+            functionHelper.writeLog("Loaded tokenizer", constant.END_LOG)
+
 
     def storageModel(self):
         self.tokenizer.save_pretrained(constant.TOKENIZER_PATH)
@@ -65,15 +73,6 @@ class ModelSentence(metaclass=SingletonMeta):
         embeddings = outputs.last_hidden_state.mean(dim=1)
 
         return embeddings
-        # pca = PCA(n_components=128)
-        # Test giảm số chiều bằng nn Linear
-        # fc = nn.Linear(768, 128)
-        # embeddings_np = embeddings.cpu().numpy()
-
-        # # Giảm số chiều bằng PCA
-        # reduced_embeddings = fc(embeddings)
-
-        # return reduced_embeddings
 
     def tokenizeArrayObject(self, arr):
         return [
@@ -121,13 +120,3 @@ class ModelSentence(metaclass=SingletonMeta):
 
         batchEmbedding = outputs.last_hidden_state.mean(dim=1)
         return batchEmbedding
-
-        # pca = PCA(n_components=len(arr))
-        # Test giảm số chiều bằng PCA
-        # print(f"Shape of batchEmbedding: {batchEmbedding.shape}")
-        # batchEmbedding_np = batchEmbedding.cpu().numpy()
-
-        # # Giảm số chiều bằng PCA
-        # reduced_embeddings = pca.fit_transform(batchEmbedding_np)
-
-        # return reduced_embeddings
