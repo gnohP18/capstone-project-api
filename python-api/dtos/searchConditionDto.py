@@ -11,3 +11,4 @@ class SearchConditionDto(BaseModel):
     limit: Optional[int] = 10
     fuzziness: Optional[str] = "AUTO"
     orderBy: Optional[str] = constant.ORDER_BY["DESC"]
+    fieldVector: Optional[str] = "sentence_vector"

@@ -1,6 +1,7 @@
 from typing import List
 from dotenv import load_dotenv
 import os
+import re
 from common import constant
 
 
@@ -54,3 +55,12 @@ def generateUrlPreview(names: List[str] = []) -> List[str]:
     # check if type is in another service like AWS 
     
     return ["storage/documents/Topics_1_2_20240824_050225.pdf"]
+
+def writeLog(param: str = "", type: str = constant.START_LOG):
+    print(f"==================={type} - {param}===================>")
+    
+
+def standardizationText(sentences):
+    sentences = sentences.replace('  ', ' ');
+    
+    return re.sub(constant.PATTERN, ' ', sentences).lower()

@@ -1,0 +1,2 @@
+from .sentenceMapping import SentenceMapping
+from .documentMapping import DocumentMapping
