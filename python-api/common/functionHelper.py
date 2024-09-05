@@ -63,4 +63,4 @@ def writeLog(param: str = "", type: str = constant.START_LOG):
 def standardizationText(sentences):
     sentences = sentences.replace('  ', ' ');
     
-    return re.sub(constant.PATTERN, ' ', sentences).lower()
+    return re.sub(constant.PATTERN_REGEX_VIETNAMESE, ' ', sentences).lower()

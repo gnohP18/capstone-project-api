@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import elasticsearch, document
+from routers import elasticsearch, document, setup
 from services import ModelSentence
-from http import HTTPStatus
-from common import returnMessage, functionHelper, constant
+from common import functionHelper
+
 
 ##### API Constructor #####
 app = FastAPI()
@@ -25,32 +25,12 @@ env = functionHelper.loadEnvironment()
 ##### Load model #####
 model = ModelSentence()
 if env["LOAD_MODEL"] == 'True':
-    model.loadModel()
+    model.__loadModel__()
 
 @app.get("/")
-async def root():
+async def root():    
     return {"message": "Xin chào, chào mừng bạn tới project của shubanoname"}
 
-
-@app.get("/setup")
-async def setup():
-    print("====================> Initializing ...")
-    model.loadModel()
-    model.storageModel()
-    print("====================> Done ...")
-    return {
-        "status_code": HTTPStatus.CREATED,
-        "message": returnMessage.SETUP_MODEL_SUCCESS,
-    }
-
-
-@app.get("/reload")
-async def reload():
-    print("====================> Reloading ...")
-    model.reloadModel()
-    print("====================> Done ...")
-    return {"status_code": HTTPStatus.OK, "message": returnMessage.RELOAD_MODEL_SUCCESS}
-
-
+app.include_router(setup.router)
 app.include_router(elasticsearch.router)
 app.include_router(document.router)
