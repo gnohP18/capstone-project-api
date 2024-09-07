@@ -24,7 +24,7 @@ class ModelSentence(metaclass=SingletonMeta):
         self.tokenizer = None
         self.model = None
 
-    def loadModel(self):
+    def __loadModel__(self):
         """Load model follow constant config
         """
         if self.model is None:
@@ -80,7 +80,7 @@ class ModelSentence(metaclass=SingletonMeta):
             for item in arr
         ]
 
-    def padAndConcat(self, tensors):
+    def _padAndConcat(self, tensors):
         """
         padding câu để các câu có độ dài bằng nhau
         """
@@ -113,7 +113,7 @@ class ModelSentence(metaclass=SingletonMeta):
 
         for key in arr[0]:
             tensors = [item[key] for item in arr]
-            batch[key] = self.padAndConcat(tensors)
+            batch[key] = self._padAndConcat(tensors)
 
         with torch.no_grad():
             outputs = self.model(**batch)
